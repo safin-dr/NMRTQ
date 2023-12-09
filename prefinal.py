@@ -2,7 +2,7 @@ import nmrglue as ng
 import numpy as np
 import matplotlib.pyplot as mp
 from tkinter import filedialog
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, CheckButtons
 from matplotlib.widgets import RectangleSelector
 def onselect_function(eclick, erelease):
     # Obtain (xmin, xmax, ymin, ymax) values
@@ -64,6 +64,20 @@ def onChangeValue(value: np.float64):
     '''!!! Обработчик события изменения значений слайдеров'''
     updateGraph()
 
+def clickUpdate():
+    global checkbuttons_grid
+    global rect_selector
+    global graph_axes
+    clicked_integral = checkbuttons_grid.get_status()[0]
+    if(clicked_integral):
+        rect_selector=RectangleSelector(graph_axes, onselect_function, button=[1])
+    else:
+        rect_selector = None
+
+def onCheckClicked(value: str):
+    """!!! Обработчик события при нажатии на флажок"""
+    clickUpdate()
+
 file_dir= filedialog.askdirectory()
 qmd_text, data = ng.fileio.varian.read(dir=file_dir, fid_file="fid", read_blockhead=True)
 fourier_data = ng.process.proc_base.fft_norm(data)
@@ -73,13 +87,17 @@ graph_axes.grid()
 fig.subplots_adjust(left=0.07, right=0.95, top=0.95, bottom=0.4)
 
 
+
 axes_slider_smooth = mp.axes([0.05, 0.25, 0.85, 0.04])
 slider_smooth = Slider(axes_slider_smooth, 'Smooth',
                        valmin=10,
                        valmax=500,
                        valinit=50)
+axes_checkbuttons = mp.axes([0.05, 0.01, 0.17, 0.07])
+checkbuttons_grid = CheckButtons(axes_checkbuttons, ["Integral"], [False])
 slider_smooth.on_changed(onChangeValue)
 updateGraph()
-rect_selector = RectangleSelector(graph_axes, onselect_function, button=[1])
+checkbuttons_grid.on_clicked(onCheckClicked)
+#rect_selector = RectangleSelector(graph_axes, onselect_function, button=[1])
 mp.show()
 
