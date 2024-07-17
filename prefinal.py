@@ -77,7 +77,7 @@ def onselect_integral(eclick, erelease):
     list_of_integrals = []
     for i in range(len(fourier_data)):
         if(isreal):
-            y =ready_data_real
+            y =ready_data_real[i]
         else:
             y = ready_data_im[i]
         y_integral = y[real_left:real_right]
@@ -88,7 +88,7 @@ def onselect_integral(eclick, erelease):
     if(isreal):
         prefinal_frame_real[impulses[len(impulses)-1]] = list_of_integrals
     else:
-        prefinal_frame_im[im]
+        prefinal_frame_im[impulses[len(impulses)-1]] = list_of_integrals
     print(impulses[len(impulses)-1])
     print("start")
     for k in list_of_integrals:
@@ -219,9 +219,14 @@ def on_baseline(event):
 
 
 def save_data_frame(event):
-    global prefinal_frame
-    prefinal_frame.to_csv("My_data_frame", index=False)
+    global prefinal_frame_im
+    global prefinal_frame_real
+    global isreal
 
+    if(isreal):
+        prefinal_frame_real.to_csv("Real_frame", index=False)
+    else:
+        prefinal_frame_im.to_csv("Im_frame", index=False)
 
 
 def onRadioButtonsClicked(value: str):
@@ -229,7 +234,8 @@ def onRadioButtonsClicked(value: str):
     updateGraph()
 
 
-prefinal_frame = pd.DataFrame()
+prefinal_frame_real = pd.DataFrame()
+prefinal_frame_im = pd.DataFrame()
 
 file_dir= filedialog.askdirectory()
 qmd_text, data = ng.fileio.varian.read(dir=file_dir, fid_file="fid", read_blockhead=True)
